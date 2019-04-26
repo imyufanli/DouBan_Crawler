@@ -9,7 +9,7 @@ headers = {
 }
 
 
-def get_page(tag, pagination, order='T'):
+def get_page(tag, pagination=1, order='T'):
     t_url = 'https://book.douban.com/tag/%s' % tag
     start = (pagination-1)*20
     params = {
@@ -17,12 +17,12 @@ def get_page(tag, pagination, order='T'):
         'type': order
     }
     page = requests.get(t_url, params=params, headers=headers).text
-    return page
+    page_obj = BeautifulSoup(page, 'lxml')
+    return page_obj
 
 
-def get_book_data(page):
-    bs_obj = BeautifulSoup(page, 'lxml')
-    book_list = bs_obj.find('ul', class_='subject-list').find_all('div', class_='info')
+def get_book_data(page_obj):
+    book_list = page_obj.find('ul', class_='subject-list').find_all('div', class_='info')
     for book in book_list:
         title = book.h2.a.get_text(strip=True)
         # link = book.h2.a['href']
@@ -74,6 +74,12 @@ def get_rating_num(data):
     return rating_num
 
 
+def get_max_pagination(tag):
+    page_1 = get_page(tag)
+    max_pagination = int(page_1.find('div', class_='paginator').contents[-4].get_text())
+    return max_pagination
+
+
 def main(tag, filename):
     try:
         workbook = xlsxwriter.Workbook(filename)
@@ -81,9 +87,10 @@ def main(tag, filename):
         header = (u'书名', u'作者/译者', u'出版信息', u'评分', u'简介')
         worksheet.write_row(0, 0, header)
         row = 1
-        for pagination in range(1, 19):
-            page = get_page(tag, pagination)
-            for book in get_book_data(page):
+        max_pagination = get_max_pagination(tag)
+        for pagination in range(1, max_pagination+1):
+            page_obj = get_page(tag, pagination)
+            for book in get_book_data(page_obj):
                 worksheet.write_row(row, 0, book)
                 row += 1
     finally:
@@ -91,4 +98,4 @@ def main(tag, filename):
 
 
 if __name__ == '__main__':
-    main('python', 'python.xlsx')
+    main('python', 'python_book.xlsx')
