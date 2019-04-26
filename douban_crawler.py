@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import xlsxwriter
 
 
 headers = {
@@ -8,23 +9,23 @@ headers = {
 }
 
 
-def get_page(tag, page, order='T'):
+def get_page(tag, pagination, order='T'):
     t_url = 'https://book.douban.com/tag/%s' % tag
-    start = (page-1)*20
+    start = (pagination-1)*20
     params = {
         'start': start,
         'type': order
     }
-    r = requests.get(t_url, params=params, headers=headers).text
-    return r
+    page = requests.get(t_url, params=params, headers=headers).text
+    return page
 
 
-def get_book_data(r):
-    bs_obj = BeautifulSoup(r, 'lxml')
+def get_book_data(page):
+    bs_obj = BeautifulSoup(page, 'lxml')
     book_list = bs_obj.find('ul', class_='subject-list').find_all('div', class_='info')
     for book in book_list:
         title = book.h2.a.get_text(strip=True)
-        link = book.h2.a['href']
+        # link = book.h2.a['href']
         pub_info = book.div.get_text(strip=True).split(' / ')
         try:
             author = '、'.join(pub_info[0:-3])
@@ -55,14 +56,14 @@ def get_book_data(r):
         except:
             # print('[-] Error: ' + title)
             rating = ''
-        rating_num = get_rating_num(star.find_all('span')[-1].get_text(strip=True))
+        # rating_num = get_rating_num(star.find_all('span')[-1].get_text(strip=True))
         try:
             description = book.p.get_text()
         except AttributeError:
             description = ''
-        book_info = [title, link, author, publish_info, rating, rating_num, description]
+        # yield [title, link, author, publish_info, rating, rating_num, description]
+        yield [title, author, publish_info, rating, description]
         print('[+] Successfully crawled: 《%s》.' % title)
-        # print(book_info)
 
 
 def get_rating_num(data):
@@ -73,11 +74,21 @@ def get_rating_num(data):
     return rating_num
 
 
-def main(tag):
-    for page in range(1, 19):
-        r = get_page(tag, page)
-        get_book_data(r)
+def main(tag, filename):
+    try:
+        workbook = xlsxwriter.Workbook(filename)
+        worksheet = workbook.add_worksheet()
+        header = (u'书名', u'作者/译者', u'出版信息', u'评分', u'简介')
+        worksheet.write_row(0, 0, header)
+        row = 1
+        for pagination in range(1, 19):
+            page = get_page(tag, pagination)
+            for book in get_book_data(page):
+                worksheet.write_row(row, 0, book)
+                row += 1
+    finally:
+        workbook.close()
 
 
 if __name__ == '__main__':
-    main('python')
+    main('python', 'python.xlsx')
