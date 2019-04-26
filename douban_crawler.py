@@ -9,12 +9,12 @@ headers = {
 }
 
 
-def get_page(tag, pagination=1, order='T'):
+def get_page_obj(tag, pagination, order_by='T'):
     t_url = 'https://book.douban.com/tag/%s' % tag
     start = (pagination-1)*20
     params = {
         'start': start,
-        'type': order
+        'type': order_by
     }
     page = requests.get(t_url, params=params, headers=headers).text
     page_obj = BeautifulSoup(page, 'lxml')
@@ -75,7 +75,7 @@ def get_rating_num(data):
 
 
 def get_max_pagination(tag):
-    page_1 = get_page(tag)
+    page_1 = get_page_obj(tag, pagination=1)
     max_pagination = int(page_1.find('div', class_='paginator').contents[-4].get_text())
     return max_pagination
 
@@ -89,7 +89,7 @@ def main(tag, filename):
         row = 1
         max_pagination = get_max_pagination(tag)
         for pagination in range(1, max_pagination+1):
-            page_obj = get_page(tag, pagination)
+            page_obj = get_page_obj(tag, pagination)
             for book in get_book_data(page_obj):
                 worksheet.write_row(row, 0, book)
                 row += 1
