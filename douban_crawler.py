@@ -22,6 +22,12 @@ headers = {
 
 
 def get_page_obj(tag, pagination, order_by='T'):
+    """
+    :param tag: The name of the tag that you want to search.
+    :param pagination: The pagination of the search result.
+    :param order_by: The order of the search result, use T by default.
+    :return: A BeautifulSoup object of the specific tag and page.
+    """
     t_url = 'https://book.douban.com/tag/%s' % tag
     start = (pagination-1)*20
     params = {
@@ -34,6 +40,10 @@ def get_page_obj(tag, pagination, order_by='T'):
 
 
 def get_book_data(page_obj):
+    """
+    :param page_obj: The BeautifulSoup object of the page that you want to extract data from.
+    :return: A generator with the crawled data.
+    """
     book_list = page_obj.find('ul', class_='subject-list').find_all('div', class_='info')
     for book in book_list:
         title = book.h2.a.get_text(strip=True)
@@ -79,6 +89,10 @@ def get_book_data(page_obj):
 
 
 def get_rating_num(data):
+    """
+    :param data: Raw string with the rating number.
+    :return: Rating number in the raw string. Return 0 if it's less than 10.
+    """
     if data == u'(少于10人评价)':
         rating_num = 0
     else:
@@ -87,12 +101,20 @@ def get_rating_num(data):
 
 
 def get_max_pagination(tag):
+    """
+    :param tag: The name of the tag that you want to search.
+    :return: The maximum pagination of search result.
+    """
     page_1 = get_page_obj(tag, pagination=1)
     max_pagination = int(page_1.find('div', class_='paginator').contents[-4].get_text())
     return max_pagination
 
 
 def main(tag, filename):
+    """
+    :param tag: The name of the tag that you want to search.
+    :param filename: The filename of the workbook that you want to write data in.
+    """
     try:
         workbook = xlsxwriter.Workbook(filename)
         worksheet = workbook.add_worksheet()
