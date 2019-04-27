@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+
+"""
+    DouBan Crawler
+    ~~~~~~~~~~~~~~
+
+    A DouBan Book web crawler.
+
+    :Author: JustALee(https://github.com/JustALee).
+"""
+
+
 import requests
 from bs4 import BeautifulSoup
 import xlsxwriter
