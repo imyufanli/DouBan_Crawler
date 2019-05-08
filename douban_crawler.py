@@ -89,7 +89,8 @@ def get_rating_num(data):
     :param data: Raw string with the rating number.
     :return: Rating number in the raw string. Return 0 if it's less than 10.
     """
-    if data == u'(少于10人评价)':
+    if data == u'(少于10人评价)' \
+            or data == u'(目前无人评价)':
         rating_num = 0
     else:
         rating_num = data[1:-4]
