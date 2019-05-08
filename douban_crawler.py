@@ -49,6 +49,8 @@ def get_book_data(page_obj):
         title = book.h2.a.get_text(strip=True)
         # link = book.h2.a['href']
         pub_info = book.div.get_text(strip=True).split(' / ')
+        # 事实上豆瓣上很多书籍的信息会有缺失，所以像这样按照位置确定数据类型的方式并不精准，
+        # 要做到精确的方式就是进入每个图书的详情页面抓取数据，但这样的话工作量无疑也会大大增加
         author = '、'.join(pub_info[0:-3])
         publish_info = ' / '.join(pub_info[-3:])
         '''        try:
@@ -71,14 +73,14 @@ def get_book_data(page_obj):
         except IndexError:
             print('[-] Error: Rating for 《%s》 is not available.' % title)
             rating = ''
-        # rating_num = get_rating_num(star.find_all('span')[-1].get_text(strip=True))
+        rating_num = get_rating_num(star.find_all('span')[-1].get_text(strip=True))
         try:
             description = book.p.get_text()
         except AttributeError:
             print('[-] Error: Description for 《%s》 is not available.' % title)
             description = ''
         # yield [title, link, author, publish_info, rating, rating_num, description]
-        yield [title, author, publish_info, rating, description]
+        yield [title, author, publish_info, rating, rating_num, description]
         print('[+] Successfully crawled: 《%s》.' % title)
 
 
@@ -100,6 +102,7 @@ def get_max_pagination(tag):
     :return: The maximum pagination of search result.
     """
     page_1 = get_page_obj(tag, pagination=1)
+    # BeautifulSoup解析的数据会包含换行符，所以最大页的索引是-4
     max_pagination = int(page_1.find('div', class_='paginator').contents[-4].get_text())
     return max_pagination
 
@@ -111,7 +114,7 @@ def main(tag, filename):
     """
     with xlsxwriter.Workbook(filename) as workbook:
         worksheet = workbook.add_worksheet()
-        header = (u'书名', u'作者/译者', u'出版信息', u'评分', u'简介')
+        header = (u'书名', u'作者/译者', u'出版信息', u'评分', u'评价人数', u'简介')
         worksheet.write_row(0, 0, header)
         row = 1
         max_pagination = get_max_pagination(tag)
