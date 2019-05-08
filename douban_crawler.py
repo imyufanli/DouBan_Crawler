@@ -49,15 +49,8 @@ def get_book_data(page_obj):
         title = book.h2.a.get_text(strip=True)
         # link = book.h2.a['href']
         pub_info = book.div.get_text(strip=True).split(' / ')
-        try:
-            author = '、'.join(pub_info[0:-3])
-        except:
-            # print('[-] Error: ' + title)
-            author = ''
-        try:
-            publish_info = ' / '.join(pub_info[-3:])
-        except:
-            publish_info = ''
+        author = '、'.join(pub_info[0:-3])
+        publish_info = ' / '.join(pub_info[-3:])
         '''        try:
             publisher = pub_info[-3]
         except:
@@ -75,13 +68,14 @@ def get_book_data(page_obj):
         star = book.find_all('div')[1]
         try:
             rating = star.find_all('span')[1].get_text(strip=True)
-        except:
-            # print('[-] Error: ' + title)
+        except IndexError:
+            print('[-] Error: Rating for 《%s》 is not available.' % title)
             rating = ''
         # rating_num = get_rating_num(star.find_all('span')[-1].get_text(strip=True))
         try:
             description = book.p.get_text()
         except AttributeError:
+            print('[-] Error: Description for 《%s》 is not available.' % title)
             description = ''
         # yield [title, link, author, publish_info, rating, rating_num, description]
         yield [title, author, publish_info, rating, description]
