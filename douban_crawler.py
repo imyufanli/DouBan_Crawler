@@ -109,8 +109,7 @@ def main(tag, filename):
     :param tag: The name of the tag that you want to search.
     :param filename: The filename of the workbook that you want to write data in.
     """
-    try:
-        workbook = xlsxwriter.Workbook(filename)
+    with xlsxwriter.Workbook(filename) as workbook:
         worksheet = workbook.add_worksheet()
         header = (u'书名', u'作者/译者', u'出版信息', u'评分', u'简介')
         worksheet.write_row(0, 0, header)
@@ -121,8 +120,6 @@ def main(tag, filename):
             for book in get_book_data(page_obj):
                 worksheet.write_row(row, 0, book)
                 row += 1
-    finally:
-        workbook.close()
 
 
 if __name__ == '__main__':
