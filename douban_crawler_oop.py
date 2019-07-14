@@ -33,14 +33,14 @@ class Page(BeautifulSoup):
         :param order_by: The order of the search result, use T by default.
         :param kwargs: Will be pass to it's super class.
         """
-        self.t_url = 'https://book.douban.com/tag/%s' % tag
+        t_url = 'https://book.douban.com/tag/%s' % tag
         start = (pagination - 1) * 20
-        self.params = {
+        params = {
             'start': start,
             'type': order_by
         }
         markup = requests.get(
-            self.t_url, params=self.params, headers=headers).text
+            t_url, params=params, headers=headers).text
         super().__init__(markup, 'lxml', **kwargs)
 
     def get_books(self):
