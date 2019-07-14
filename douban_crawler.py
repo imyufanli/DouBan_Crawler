@@ -23,7 +23,7 @@ headers = {
 
 def get_page_obj(tag, pagination, order_by='T'):
     """
-    :param tag: The name of the tag that you want to search.
+    :param tag: The name of the tag that you wish to search.
     :param pagination: The pagination of the search result.
     :param order_by: The order of the search result, use T by default.
     :return: A BeautifulSoup object of the specific tag and page.
@@ -34,8 +34,8 @@ def get_page_obj(tag, pagination, order_by='T'):
         'start': start,
         'type': order_by
     }
-    page = requests.get(t_url, params=params, headers=headers).text
-    page_obj = BeautifulSoup(page, 'lxml')
+    markup = requests.get(t_url, params=params, headers=headers).text
+    page_obj = BeautifulSoup(markup, 'lxml')
     return page_obj
 
 
@@ -99,8 +99,8 @@ def get_rating_num(data):
 
 def get_max_pagination(tag):
     """
-    :param tag: The name of the tag that you want to search.
-    :return: The maximum pagination of search result.
+    :param tag: The name of the tag that you wish to search.
+    :return: The maximum pagination of the search result.
     """
     page_1 = get_page_obj(tag, pagination=1)
     # BeautifulSoup解析的数据会包含换行符，所以最大页的索引是-4
@@ -110,7 +110,7 @@ def get_max_pagination(tag):
 
 def main(tag, filename):
     """
-    :param tag: The name of the tag that you want to search.
+    :param tag: The name of the tag that you wish to search.
     :param filename: The filename of the workbook that you want to write data in.
     """
     with xlsxwriter.Workbook(filename) as workbook:
