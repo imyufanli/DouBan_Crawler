@@ -65,7 +65,7 @@ class Page(BeautifulSoup):
             try:
                 description = book.p.get_text()
             except AttributeError:
-                print('[-] Error: Description for 《%s》 is not available.' % title)
+                print('[-] Error: Description of the 《%s》 is not available.' % title)
                 description = ''
             yield [title, author, publish_info, rating, rating_num, description]
             print('[+] Successfully crawled: 《%s》.' % title)
