@@ -6,7 +6,7 @@
 
     A DouBan Book web crawler.
 
-    :Author: JustALee(https://github.com/JustALee).
+    :Author: Yufan Li(https://github.com/imyufanli).
 """
 
 
